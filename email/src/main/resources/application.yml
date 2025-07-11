@@ -1,0 +1,61 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: resilient-email-service
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# Email Service Configuration
+email:
+  service:
+    retry:
+      max-attempts: 3
+      initial-delay: 1000  # 1 second
+      max-delay: 10000     # 10 seconds
+      multiplier: 2.0
+    rate-limit:
+      max-requests: 100
+      window-seconds: 60
+    circuit-breaker:
+      failure-threshold: 5
+      timeout-seconds: 30
+      recovery-timeout-seconds: 60
+    queue:
+      max-size: 1000
+      processing-interval: 5000  # 5 seconds
+
+# Logging Configuration
+logging:
+  level:
+    com.pearlthoughts.email: DEBUG
+    org.springframework.retry: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Management endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
